@@ -1,0 +1,108 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    // Collection: users
+    // Fields: uid, email, displayName, role, schoolName, createdAt
+    //
+    // Collection: students
+    // Fields: id, name, fatherName, class, section, rollNumber, admissionDate, feeAmount, status, photoUrl
+    //
+    // Collection: attendance
+    // Fields: studentId, date, status, class
+    //
+    // Collection: fees
+    // Fields: studentId, month, year, amountPaid, totalAmount, paymentDate, status
+    //
+    // Collection: staff
+    // Fields: name, email, role, salary, joiningDate, qualifications
+    //
+    // Collection: payroll
+    // Fields: staffId, month, year, baseSalary, bonus, deduction, netPaid, paymentMethod, paymentDate
+    //
+    // Collection: expenses
+    // Fields: category, amount, description, date
+    //
+    // Collection: leaves
+    // Fields: staffId, type, startDate, endDate, reason, status
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function getUserData() {
+      return get(/databases/$(database)/documents/users/$(request.auth.uid)).data;
+    }
+
+    function isRole(role) {
+      return isAuthenticated() && getUserData().role == role;
+    }
+
+    function isAdmin() {
+      return isAuthenticated() && (
+        getUserData().role == 'owner' || 
+        getUserData().role == 'head_teacher' ||
+        (request.auth.token.email == "imran.isdt@gmail.com" && request.auth.token.email_verified == true)
+      );
+    }
+
+    function hasRequiredFields(fields) {
+      return request.resource.data.keys().hasAll(fields);
+    }
+
+    function hasOnlyAllowedFields(fields) {
+      return request.resource.data.keys().hasOnly(fields);
+    }
+
+    // Rules
+    match /users/{uid} {
+      allow read: if isAuthenticated();
+      allow create: if isOwner(uid) && hasRequiredFields(['uid', 'email', 'role']);
+      allow update: if isOwner(uid) || isAdmin();
+    }
+
+    match /students/{studentId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /attendance/{attendanceId} {
+      allow read: if isAuthenticated();
+      allow write: if isAuthenticated();
+    }
+
+    match /fees/{feeId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /staff/{staffId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /payroll/{payrollId} {
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
+    }
+
+    match /expenses/{expenseId} {
+      allow read: if isRole('owner');
+      allow write: if isRole('owner');
+    }
+
+    match /leaves/{leaveId} {
+      allow read: if isAuthenticated();
+      allow create: if isAuthenticated();
+      allow update: if isAdmin();
+    }
+  }
+}

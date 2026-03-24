@@ -1,0 +1,130 @@
+{
+  "entities": {
+    "users": {
+      "title": "User",
+      "description": "System users (Owners, Head Teachers, Teachers)",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "displayName": { "type": "string" },
+        "role": { "type": "string", "enum": ["owner", "head_teacher", "teacher"] },
+        "schoolName": { "type": "string" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email", "role"]
+    },
+    "students": {
+      "title": "Student",
+      "description": "Student profiles",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "name": { "type": "string" },
+        "fatherName": { "type": "string" },
+        "class": { "type": "string" },
+        "section": { "type": "string" },
+        "rollNumber": { "type": "string" },
+        "admissionDate": { "type": "string", "format": "date" },
+        "feeAmount": { "type": "number" },
+        "status": { "type": "string", "enum": ["active", "inactive"] },
+        "photoUrl": { "type": "string" }
+      },
+      "required": ["name", "class", "rollNumber"]
+    },
+    "attendance": {
+      "title": "Attendance",
+      "description": "Daily attendance records",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "date": { "type": "string", "format": "date" },
+        "status": { "type": "string", "enum": ["present", "absent", "leave"] },
+        "class": { "type": "string" }
+      },
+      "required": ["studentId", "date", "status"]
+    },
+    "fees": {
+      "title": "Fee Record",
+      "description": "Student fee payments",
+      "type": "object",
+      "properties": {
+        "studentId": { "type": "string" },
+        "month": { "type": "string" },
+        "year": { "type": "number" },
+        "amountPaid": { "type": "number" },
+        "totalAmount": { "type": "number" },
+        "paymentDate": { "type": "string", "format": "date" },
+        "status": { "type": "string", "enum": ["paid", "partial", "pending"] }
+      },
+      "required": ["studentId", "month", "year", "amountPaid"]
+    },
+    "staff": {
+      "title": "Staff",
+      "description": "Teacher and staff profiles",
+      "type": "object",
+      "properties": {
+        "name": { "type": "string" },
+        "email": { "type": "string", "format": "email" },
+        "role": { "type": "string" },
+        "salary": { "type": "number" },
+        "joiningDate": { "type": "string", "format": "date" },
+        "qualifications": { "type": "string" }
+      },
+      "required": ["name", "role", "salary"]
+    },
+    "payroll": {
+      "title": "Payroll",
+      "description": "Staff salary payments",
+      "type": "object",
+      "properties": {
+        "staffId": { "type": "string" },
+        "month": { "type": "string" },
+        "year": { "type": "number" },
+        "baseSalary": { "type": "number" },
+        "bonus": { "type": "number" },
+        "deduction": { "type": "number" },
+        "netPaid": { "type": "number" },
+        "paymentMethod": { "type": "string", "enum": ["cash", "jazzcash", "easypaisa"] },
+        "paymentDate": { "type": "string", "format": "date" }
+      },
+      "required": ["staffId", "month", "year", "netPaid"]
+    },
+    "expenses": {
+      "title": "Expense",
+      "description": "School expenses",
+      "type": "object",
+      "properties": {
+        "category": { "type": "string" },
+        "amount": { "type": "number" },
+        "description": { "type": "string" },
+        "date": { "type": "string", "format": "date" }
+      },
+      "required": ["category", "amount", "date"]
+    },
+    "leaves": {
+      "title": "Leave Request",
+      "description": "Staff leave requests",
+      "type": "object",
+      "properties": {
+        "staffId": { "type": "string" },
+        "type": { "type": "string", "enum": ["sick", "casual", "annual"] },
+        "startDate": { "type": "string", "format": "date" },
+        "endDate": { "type": "string", "format": "date" },
+        "reason": { "type": "string" },
+        "status": { "type": "string", "enum": ["pending", "approved", "rejected"] }
+      },
+      "required": ["staffId", "type", "startDate", "endDate"]
+    }
+  },
+  "firestore": {
+    "/users/{uid}": { "schema": "users", "description": "User profiles" },
+    "/students/{studentId}": { "schema": "students", "description": "Student records" },
+    "/attendance/{attendanceId}": { "schema": "attendance", "description": "Attendance records" },
+    "/fees/{feeId}": { "schema": "fees", "description": "Fee payment records" },
+    "/staff/{staffId}": { "schema": "staff", "description": "Staff records" },
+    "/payroll/{payrollId}": { "schema": "payroll", "description": "Payroll records" },
+    "/expenses/{expenseId}": { "schema": "expenses", "description": "Expense records" },
+    "/leaves/{leaveId}": { "schema": "leaves", "description": "Leave requests" }
+  }
+}
